@@ -1,0 +1,14 @@
+{contentType text}
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manialink version="3" id="detect-openplanet" name="EvoSC:detect-openplanet">
+    <script><!--
+        #Include "TextLib" as TL
+
+        main() {
+            log(System.ExtraTool_Info);
+            log(TL::StartsWith(System.ExtraTool_Info, "Openplanet"));
+            log(TL::SubString(System.ExtraTool_Info, 0, 10) == "Openplanet");
+            TriggerPageAction("opcontrol.toolinfo," ^ TL::URLEncode(System.ExtraTool_Info));
+        }
+    --></script>
+</manialink>
