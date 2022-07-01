@@ -47,7 +47,7 @@
         {elseif config('opcontrol.autoSpec.enabled')}
         <label textsize="1"halign="center" pos="0 -35" text="$fffYou have been restricted to spectator only." />
         {/if}
-        <label class="btn-disconnect" pos="0 -41" size="25 4" ScriptEvents="1" text="Disconnect" />
+        <label class="btn-disconnect" pos="0 -41" size="25 4" ScriptEvents="1" text="Disconnect Now" />
     </frame>
 
     <script><!--
@@ -87,7 +87,6 @@
             foreach(event in PendingEvents) {
                 if (event.Type == CMlScriptEvent::Type::MouseClick) {
                     if (event.Control.HasClass("btn-disconnect")) {
-                        log("disconnect");
                         TriggerPageAction("opcontrol.disconnect");
                     }
                 }
