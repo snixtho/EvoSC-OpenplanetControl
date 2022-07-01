@@ -1,0 +1,16 @@
+{
+    "enabled": true,
+    "devVersionOnly": false,
+    "autoKick": {
+        "enabled": true,
+        "delay": 15
+    },
+    "autoSpec": {
+        "enabled": true
+    },
+    "warning": {
+        "notifyAdmins": true,
+        "showPlayerWarning": true
+    },
+    "whitelist": []
+}
