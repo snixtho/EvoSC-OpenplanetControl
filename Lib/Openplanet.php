@@ -6,10 +6,10 @@ use EvoSC\Modules\OpenplanetControl\Exceptions\CouldNotParseToolInfoException;
 
 class OpenplanetInfo
 {
-    const MODE_DEV = 'DEVMODE';
-    const MODE_OFFICIAL = 'OFFICIAL';
-    const MODE_COMPETITION = 'COMPETITION';
-    const MODE_UNKNOWN = 'UNKNOWN';
+    const MODE_DEV = 'DEVMODE'; //All plugins, including unsigned ones
+    const MODE_OFFICIAL = 'OFFICIAL'; //Plugins shipped with Openplanet
+    const MODE_COMPETITION = 'COMPETITION'; //Plugins approved for use in TMGL
+    const MODE_UNKNOWN = 'UNKNOWN'; //Everything else (invalid/empty)
 
     public string $version;
     public string $game;
@@ -57,7 +57,7 @@ class Openplanet
             $game = $details[0];
             $branch = $details[1];
             $build = $details[2];
-            $mode = $matches[4];
+            $mode = $matches[4] ?: OpenplanetInfo::MODE_UNKNOWN;
 
             return new OpenplanetInfo($version, $game, $branch, $build, $mode);
         } else {
