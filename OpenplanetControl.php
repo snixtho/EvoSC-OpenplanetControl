@@ -14,11 +14,10 @@ use EvoSC\Classes\ManiaLinkEvent;
 use EvoSC\Classes\Server;
 use EvoSC\Classes\Timer;
 use EvoSC\Controllers\ConfigController;
-use EvoSC\Controllers\ModuleController;
 use EvoSC\Models\AccessRight;
+use EvoSC\Modules\OpenplanetControl\Exceptions\CouldNotParseToolInfoException;
 use EvoSC\Modules\OpenplanetControl\Lib\Openplanet;
 use EvoSC\Modules\OpenplanetControl\Lib\OpenplanetInfo;
-use PhpParser\Node\Expr\AssignOp\Plus;
 
 class OpenplanetControl extends Module implements ModuleInterface
 {
@@ -28,6 +27,7 @@ class OpenplanetControl extends Module implements ModuleInterface
     public static function start(string $mode, bool $isBoot = false)
     {
         Hook::add('PlayerConnect', [self::class, 'playerConnect']);
+
         ManiaLinkEvent::add('opcontrol.toolinfo', [self::class, 'onToolInfo']);
         ManiaLinkEvent::add('opcontrol.disconnect', [self::class, 'onDisconnect']);
 
@@ -44,56 +44,102 @@ class OpenplanetControl extends Module implements ModuleInterface
         }
     }
 
+    /**
+     * @param \EvoSC\Models\Player $player
+     * @param string               $rawInfo
+     *
+     * @return void
+     * @throws \EvoSC\Exceptions\InvalidArgumentException
+     */
     public static function onToolInfo(Player $player, string $rawInfo)
     {
-        $opInfo = Openplanet::parseToolInfo(urldecode($rawInfo));
-
-        if ($opInfo == false)
+        try {
+            $opInfo = Openplanet::parseToolInfo(urldecode($rawInfo));
+        } catch (CouldNotParseToolInfoException $e) {
             return;
+        }
 
-        if (config('opcontrol.devVersionOnly') && !$opInfo->devMode)
-            return;
-        
+        if (!empty($opInfo->mode) && $opInfo->mode != OpenplanetInfo::MODE_UNKNOWN) {
+            if (config('opcontrol.devVersionOnly') && !$opInfo->isDevMode()) {
+                return;
+            }
+
+            if (in_array($opInfo->mode, config('opcontrol.modesAllowed', []))) {
+                return;
+            }
+        }
+
         // has openplanet
-        $msg = "Player " . $player->NickName . " (Login: " . $player->Login . ") is using Openplanet";
-        Log::warning($msg);
+        $warningMessage = sprintf(
+            'Player "%s" (Login: "%s") is using Openplanet in mode: %s',
+            $player->NickName,
+            $player->Login,
+            $opInfo->mode
+        );
+
+        Log::warning($warningMessage);
 
         if (config('opcontrol.warning.notifyAdmins') && !self::isAllowed($player)) {
-            warningMessage($msg)->sendAdmin();
+            warningMessage($warningMessage)->sendAdmin();
         }
-        
+
         // handle player (if possible)
         self::warnPlayer($player, $opInfo);
         self::forceSpectator($player);
         self::scheduleKick($player, config('opcontrol.autoKick.delay'));
     }
 
-    public static function onDisconnect(Player $player) {
+    /**
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return void
+     */
+    public static function onDisconnect(Player $player)
+    {
         Server::kick($player->Login);
     }
 
-    public static function forceSpectator(Player $player) {
+    /**
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return void
+     */
+    public static function forceSpectator(Player $player)
+    {
         if (config('opcontrol.autoSpec.enabled') && !self::isAllowed($player)) {
             Server::forceSpectator($player->Login, 1);
             self::sendWarning('You were automatically forced to spectator.', $player);
         }
     }
 
-    public static function scheduleKick(Player $player, int $delay=0) {
+    /**
+     * @param \EvoSC\Models\Player $player
+     * @param int                  $delay
+     *
+     * @return void
+     */
+    public static function scheduleKick(Player $player, int $delay = 0)
+    {
         if (config('opcontrol.autoKick.enabled') && !self::isAllowed($player)) {
             self::sendWarning('You will be kicked in ' . $delay . ' second(s) for using Openplanet.', $player);
 
             if ($delay > 0) {
-                Timer::create('opcontrol.kick.' . $player->Login, function() use ($player) {
+                Timer::create('opcontrol.kick.' . $player->Login, function () use ($player) {
                     self::kickPlayer($player);
-                }, $delay.'s');
+                }, $delay . 's');
             } else {
                 self::kickPlayer($player);
             }
         }
     }
 
-    public static function kickPlayer(Player $player) {
+    /**+
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return void
+     */
+    public static function kickPlayer(Player $player)
+    {
         Server::kick($player->Login, 'Openplanet is not allowed on this server.');
 
         if (config('opcontrol.warning.notifyAdmins')) {
@@ -101,41 +147,76 @@ class OpenplanetControl extends Module implements ModuleInterface
         }
     }
 
-    public static function warnPlayer(Player $player, OpenplanetInfo $opInfo) {
+    /**+
+     * @param \EvoSC\Models\Player                                $player
+     * @param \EvoSC\Modules\OpenplanetControl\Lib\OpenplanetInfo $opInfo
+     *
+     * @return void
+     * @throws \EvoSC\Exceptions\InvalidArgumentException
+     */
+    public static function warnPlayer(Player $player, OpenplanetInfo $opInfo)
+    {
         if (config('opcontrol.warning.showPlayerWarning') && !self::isAllowed($player)) {
-            self::sendWarning('Openplanet ' . ($opInfo->devMode ? 'developer mode' : '') . ' detected!', $player);
+            self::sendWarning('Openplanet ' . $opInfo->mode . ' detected!', $player);
             Template::show($player, 'OpenplanetControl.warning-window', compact('opInfo'));
         }
     }
 
-    public static function isAllowed(Player $player) {
-        $ignoreAdmins = config('opcontrol.whitelist.ignoreAdmins');
-
-        if ($player->hasAccess('opcontrol_ignore'))
+    /**
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return bool
+     */
+    public static function isAllowed(Player $player)
+    {
+        if ($player->hasAccess('opcontrol_ignore')) {
             return true;
+        }
 
         $whitelist = config('opcontrol.whitelist');
 
-        if ($whitelist == null)
+        if ($whitelist == null) {
             return false;
+        }
 
-        foreach ($whitelist as $login)
-            if ($player->Login === $login)
+        foreach ($whitelist as $login) {
+            if ($player->Login === $login) {
                 return true;
+            }
+        }
 
         return false;
     }
 
-    public static function sendWarning(string $message, Player $player) {
+    /**
+     * @param string               $message
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return void
+     */
+    public static function sendWarning(string $message, Player $player)
+    {
         warningMessage('[Openplanet Control] ' . $message)->send($player);
     }
 
-    public static function cmdEnable(Player $player) {
+    /**
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return void
+     */
+    public static function cmdEnable(Player $player)
+    {
         ConfigController::saveConfig('opcontrol.enabled', true);
         successMessage('Openplanet Control is now $<$0f0enabled$>')->send($player);
     }
 
-    public static function cmdDisable(Player $player) {
+    /**
+     * @param \EvoSC\Models\Player $player
+     *
+     * @return void
+     */
+    public static function cmdDisable(Player $player)
+    {
         ConfigController::saveConfig('opcontrol.enabled', false);
         successMessage('Openplanet Control is now $<$f00disabled$>')->send($player);
     }
