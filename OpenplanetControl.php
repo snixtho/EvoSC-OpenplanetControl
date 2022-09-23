@@ -59,12 +59,12 @@ class OpenplanetControl extends Module implements ModuleInterface
             return;
         }
 
-        if (!empty($opInfo->mode) && $opInfo->mode != OpenplanetInfo::MODE_UNKNOWN) {
+        if (!empty($opInfo->signatureMode) && $opInfo->signatureMode != OpenplanetInfo::MODE_UNKNOWN) {
             if (config('opcontrol.devVersionOnly') && !$opInfo->isDevMode()) {
                 return;
             }
 
-            if (in_array($opInfo->mode, config('opcontrol.modesAllowed', []))) {
+            if (in_array($opInfo->signatureMode, config('opcontrol.modesAllowed', []))) {
                 return;
             }
         }
@@ -74,7 +74,7 @@ class OpenplanetControl extends Module implements ModuleInterface
             'Player "%s" (Login: "%s") is using Openplanet in mode: %s',
             $player->NickName,
             $player->Login,
-            $opInfo->mode
+            $opInfo->signatureMode
         );
 
         Log::warning($warningMessage);
@@ -157,7 +157,7 @@ class OpenplanetControl extends Module implements ModuleInterface
     public static function warnPlayer(Player $player, OpenplanetInfo $opInfo)
     {
         if (config('opcontrol.warning.showPlayerWarning') && !self::isAllowed($player)) {
-            self::sendWarning('Openplanet ' . $opInfo->mode . ' detected!', $player);
+            self::sendWarning('Openplanet ' . $opInfo->signatureMode . ' detected!', $player);
             Template::show($player, 'OpenplanetControl.warning-window', compact('opInfo'));
         }
     }
