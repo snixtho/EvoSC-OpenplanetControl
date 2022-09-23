@@ -12,5 +12,9 @@
         "notifyAdmins": true,
         "showPlayerWarning": true
     },
-    "whitelist": []
+    "whitelist": [],
+    "modesAllowed": [
+        "OFFICIAL",
+        "COMPETITION"
+    ]
 }
