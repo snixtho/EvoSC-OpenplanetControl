@@ -2,52 +2,50 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manialink name="EvoSC:opcontrol-warning" id="opcontrol-warning" version="3">
 {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
-    <stylesheet>
-        <style 
-            class="btn-disconnect"
-            halign="center"
-            valign="center"
-            focusareacolor1="cc0000" 
-            focusareacolor2="ff0000" 
-            textcolor="ffcccc" 
-            textsize="1"
-            />
-    </stylesheet>
-    <frame id="mainWindow" z-index="10000">
-        <quad bgcolor="000000" size="150 100" pos="0 0" opacity="0.9" halign="center" valign="center" z-index="-3" />
-        <quad pos="0 40" halign="center" size="20 20" image="https://i.imgur.com/L51DP5I.png" />
-        
+    <frame id="mainWindow" z-index="10000" scale="1.1">
+        <quad class="bg-darker" size="150 100" pos="0 0" opacity="0.9" halign="center" valign="center" z-index="-3" />
+        <quad pos="0 40" halign="center" size="22 20" keepratio="Fit" image="https://i.imgur.com/L51DP5I.png" opacity="0.94" />
+
         {if config('opcontrol.devVersionOnly')}
-        <label textsize="4" halign="center" pos="0 19" text="$fa0Openplanet Developer Mode Detected" />
-        <label textsize="1" halign="center" pos="0 12" text="$fffDeveloper mode and unsigned plugins are restricted on this server. Please disable to play." />
+        <label textsize="4" halign="center" pos="0 19" class="text-light"   text="Openplanet Developer Mode Detected" />
         {else}
-        <label textsize="4" halign="center" pos="0 19" text="$fa0Openplanet Detected" />
-        <label textsize="1" halign="center" pos="0 12" text="$fffOpenplanet has been restricted on this server. Please disable it to play." />
+        <label textsize="4" halign="center" pos="0 19" class="text-light"   text="Openplanet Detected" />
         {/if}
 
-        <label class="btn-disconnect" pos="0 -41" size="25 4" ScriptEvents="1" text="Disconnect Now" />
+        <frame pos="0 12.5">
+            {if config('opcontrol.devVersionOnly') || empty($allowedSignatureModes = config('opcontrol.modesAllowed', []))}
+            <label textsize="1" halign="center" pos="0 0" class="text-lighter" text="Openplanet has been restricted on this server." />
+            <label textsize="1" halign="center" pos="0 -8" scale="1.2"  class="text-warning" text="Please disable it to play." />
+            {else}
+            <label textsize="1" halign="center" pos="0 0" class="text-lighter" text="Openplanet has been restricted on this server" opacity="0.6" />
+            <label textsize="1" halign="center" pos="0 -6" scale="1.1" class="text-lighter" text="Please choose one of the allowed signature modes:" />
+            <label textsize="1" halign="center" pos="0 -10" scale="1.2"  class="text-warning" text="{implode(', ',$allowedSignatureModes)}" />
+            {/if}
+        </frame>
 
-        <quad bgcolor="ffffff55" size="105 23" pos="0 -11.5" opacity="1" halign="center" valign="center" z-index="-2" />
-        <quad bgcolor="00000099" size="104.3 22.5" pos="0 -11.5" opacity="1" halign="center" valign="center" z-index="-1" />
-        
-        {if config('opcontrol.devVersionOnly')}
-        <label textsize="2" halign="center" pos="0 -4" text="$fffHow to disable?" />
-        <quad bgcolor="aaaaaa" size="27 0.2" pos="0 -7.5" opacity="1" halign="center" valign="center" />
-        <label textsize="1" halign="center" pos="0 -12" text="$fffIn $cccSettings$fff and under $cccScript engine$fff, make sure"/>
-        <label textsize="1" halign="center" pos="0 -16" text="$fff$cccEnable Developer mode on startup$fff is unchecked. Then restart your game." />
-        {else}
-        <label textsize="2" halign="center" pos="0 -4" text="$fffHow to disable?" />
-        <quad bgcolor="aaaaaa" size="27 0.2" pos="0 -7.5" opacity="1" halign="center" valign="center" />
-        <label textsize="1" halign="center" pos="0 -12" text="$fffClose the game. Hold $9dfPAUSE$fff and then start the game, keep holding $9dfPAUSE$g." />
-        <label textsize="1" halign="center" pos="0 -16" text="$fffWhen you see $cccPlease wait ..$fff or the $cccblack warning screen$fff, release $9dfPAUSE$fff." />
-        {/if}
+        <frame pos="0 -6">
+            <quad class="bg-light" size="125 22" pos="0 -11.5" opacity="0.4" halign="center" valign="center" z-index="-2" />
+            <quad class="bg-darker" size="124.3 21.5" pos="0 -11.5" opacity="1" halign="center" valign="center" z-index="-1" />
+            <label textsize="2" halign="center" pos="0 -4" text="$fffHow to disable Openplanet?" />
+            <quad bgcolor="aaaaaa" size="49 0.2" pos="0 -8" opacity="1" halign="center" valign="center" />
 
-        {if config('opcontrol.autoKick.enabled') && config('opcontrol.autoKick.delay') > 0}
-        <label id="countdowntext" textsize="1"halign="center" pos="0 -35" text="$fff$iYou will be automatically kicked in {config('opcontrol.autoKick.delay')} second(s)." />
-        {elseif config('opcontrol.autoSpec.enabled')}
-        <label textsize="1"halign="center" pos="0 -35" text="$fffYou have been restricted to spectator only." />
-        {/if}
-        <label class="btn-disconnect" pos="0 -41" size="25 4" ScriptEvents="1" text="Disconnect Now" />
+            {if config('opcontrol.devVersionOnly')}
+            <label textsize="1" halign="center" pos="0 -12" text="$fffIn $cccSettings$fff and under $cccScript engine$fff, make sure"/>
+            <label textsize="1" halign="center" pos="0 -16" text="$fff$cccEnable Developer mode on startup$fff is unchecked. Then restart your game." />
+            {else}
+            <label textsize="1" halign="center" pos="0 -12" text="$fffClose the game. Hold $9dfPAUSE$fff and then start the game, keep holding $9dfPAUSE$g." />
+            <label textsize="1" halign="center" pos="0 -16" text="$fffWhen you see $cccPlease wait ..$fff or the $cccblack warning screen$fff, release $9dfPAUSE$fff." />
+            {/if}
+        </frame>
+
+        <frame pos="0 -34">
+            {if config('opcontrol.autoKick.enabled') && config('opcontrol.autoKick.delay') > 0}
+            <label id="countdowntext" textsize="1" halign="center" class="text-light" textprefix="$i" text="" />
+            {elseif config('opcontrol.autoSpec.enabled')}
+            <label textsize="1" halign="center" class="text-light" text="You have been restricted to spectator only." />
+            {/if}
+            <label class="btn-danger disconnect" pos="0 -8" size="25 6" ScriptEvents="1" text=" Disconnect" textsize="1.2" />
+        </frame>
     </frame>
 
     <script><!--
@@ -62,9 +60,9 @@
         }
 
         if (value < 1) {
-            countdownText.SetText("$fff$iYou are about to be kicked.");
+            countdownText.SetText("You are about to be kicked.");
         } else {
-            countdownText.SetText("$fff$iYou will be automatically kicked in " ^ value ^ " second" ^ plural ^ ".");
+            countdownText.SetText("You will be automatically kicked in " ^ value ^ " second" ^ plural);
         }
     }
 
@@ -86,7 +84,7 @@
 
             foreach(event in PendingEvents) {
                 if (event.Type == CMlScriptEvent::Type::MouseClick) {
-                    if (event.Control.HasClass("btn-disconnect")) {
+                    if (event.Control.HasClass("disconnect")) {
                         TriggerPageAction("opcontrol.disconnect");
                     }
                 }

@@ -4,10 +4,10 @@ This module allows you to control whether a player can play on your server when 
 
 ## Screenshots
 **Normal Mode**
-![Normal Mode](images/normal.png)
+![Normal Mode](images/mode_default.png)
 
 **Dev Mode**
-![Dev Mode](images/dev.png)
+![Dev Mode](images/mode_dev.png)
 
 ## Installation
 
