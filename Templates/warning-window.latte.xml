@@ -26,13 +26,18 @@
         <frame pos="0 -6">
             <quad class="bg-light" size="125 22" pos="0 -11.5" opacity="0.4" halign="center" valign="center" z-index="-2" />
             <quad class="bg-darker" size="124.3 21.5" pos="0 -11.5" opacity="1" halign="center" valign="center" z-index="-1" />
-            <label textsize="2" halign="center" pos="0 -4" text="$fffHow to disable Openplanet?" />
             <quad bgcolor="aaaaaa" size="49 0.2" pos="0 -8" opacity="1" halign="center" valign="center" />
 
             {if config('opcontrol.devVersionOnly')}
+            <label textsize="2" halign="center" pos="0 -4" text="$fffHow to disable Openplanet?" />
             <label textsize="1" halign="center" pos="0 -12" text="$fffIn $cccSettings$fff and under $cccScript engine$fff, make sure"/>
             <label textsize="1" halign="center" pos="0 -16" text="$fff$cccEnable Developer mode on startup$fff is unchecked. Then restart your game." />
+            {elseif !empty($allowedSignatureModes)}
+            <label textsize="2" halign="center" pos="0 -4" text="$fffSwitch signature mode:" />
+            <label textsize="1" halign="center" pos="0 -12" text="$fffIn the Openplanet Menu: Klick $9dfDeveloper$g." />
+            <label textsize="1" halign="center" pos="0 -16" text="$fffUnder $9dfSignature Mode$g pick one from the list above." />
             {else}
+            <label textsize="2" halign="center" pos="0 -4" text="$fffHow to disable Openplanet?" />
             <label textsize="1" halign="center" pos="0 -12" text="$fffClose the game. Hold $9dfPAUSE$fff and then start the game, keep holding $9dfPAUSE$g." />
             <label textsize="1" halign="center" pos="0 -16" text="$fffWhen you see $cccPlease wait ..$fff or the $cccblack warning screen$fff, release $9dfPAUSE$fff." />
             {/if}
@@ -62,7 +67,7 @@
         if (value < 1) {
             countdownText.SetText("You are about to be kicked.");
         } else {
-            countdownText.SetText("You will be automatically kicked in " ^ value ^ " second" ^ plural);
+            countdownText.SetText("You will be automatically kicked in " ^ value ^ " second" ^ plural ^ ".");
         }
     }
 
