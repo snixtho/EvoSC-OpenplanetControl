@@ -38,24 +38,31 @@ class OpenplanetControl extends Module implements ModuleInterface
         ChatCommand::add('//opcontrol_disable', [self::class, 'cmdDisable'], 'Disable openplanet control.', 'opcontrol_manage');
     }
 
-    public static function playerConnect(Player $player) {
+    public static function playerConnect(Player $player)
+    {
         if (config('opcontrol.enabled')) {
             Template::show($player, 'OpenplanetControl.detect-extratool');
         }
     }
 
     /**
-     * @param \EvoSC\Models\Player $player
-     * @param string               $rawInfo
-     *
+     * @param Player $player
+     * @param string $rawInfo
      * @return void
      * @throws \EvoSC\Exceptions\InvalidArgumentException
      */
     public static function onToolInfo(Player $player, string $rawInfo)
     {
+        if (empty($rawInfo)) {
+            //No openplanet detected
+            Log::info(sprintf('Player "%s" (Login: "%s") is not using Openplanet', $player, $player->Login), isVerbose());
+            return;
+        }
+
         try {
             $opInfo = Openplanet::parseToolInfo(urldecode($rawInfo));
         } catch (CouldNotParseToolInfoException $e) {
+            Log::error('Failed to parse tool info: ' . $e->getMessage());
             return;
         }
 
@@ -114,7 +121,7 @@ class OpenplanetControl extends Module implements ModuleInterface
 
     /**
      * @param \EvoSC\Models\Player $player
-     * @param int                  $delay
+     * @param int $delay
      *
      * @return void
      */
@@ -148,7 +155,7 @@ class OpenplanetControl extends Module implements ModuleInterface
     }
 
     /**+
-     * @param \EvoSC\Models\Player                                $player
+     * @param \EvoSC\Models\Player $player
      * @param \EvoSC\Modules\OpenplanetControl\Lib\OpenplanetInfo $opInfo
      *
      * @return void
@@ -189,7 +196,7 @@ class OpenplanetControl extends Module implements ModuleInterface
     }
 
     /**
-     * @param string               $message
+     * @param string $message
      * @param \EvoSC\Models\Player $player
      *
      * @return void
