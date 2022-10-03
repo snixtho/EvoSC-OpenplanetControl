@@ -61,9 +61,9 @@
 
         <frame pos="0 -34" z-index="3">
             {if config('opcontrol.autoKick.enabled') && config('opcontrol.autoKick.delay') > 0}
-            <label id="countdowntext" textsize="1" halign="center" class="text-light" textprefix="$i" text="" />
+            <label id="countdowntext" textsize="1" halign="center" textprefix="$i" text="" />
             {elseif config('opcontrol.autoSpec.enabled')}
-            <label textsize="1" halign="center" class="text-light" text="You have been restricted to spectator only." />
+            <label textsize="1" halign="center" text="You have been restricted to spectator only." />
             {/if}
 
             <label class="btn-disconnect" pos="0 -7" size="30 5" ScriptEvents="1" text=" Disconnect Now" textsize="1.2" valign="center" halign="center" />
