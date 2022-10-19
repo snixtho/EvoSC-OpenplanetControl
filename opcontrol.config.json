@@ -15,6 +15,7 @@
     "whitelist": [],
     "modesAllowed": [
         "OFFICIAL",
+        "REGULAR",
         "COMPETITION"
     ]
 }
