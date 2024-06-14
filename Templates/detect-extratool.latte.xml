@@ -1,12 +1,26 @@
 {contentType text}
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manialink version="3" id="detect-openplanet" name="EvoSC:detect-openplanet">
-    <script><!--
+    <script>
+    <!--
         #Include "TextLib" as TL
 
         main() {
-            log(System.ExtraTool_Info);
-            TriggerPageAction("opcontrol.toolinfo," ^ TL::URLEncode(System.ExtraTool_Info));
+            declare Integer countdown = 60;
+            declare lastCheckTime = Now;
+            while(True) {
+                yield;
+                if (Now - lastCheckTime > 1000 && countdown > 0) {
+                    countdown -= 1;
+                    lastCheckTime = Now; 
+                } 
+                if(countdown <= 0) {
+                    countdown = 60;
+                    log(System.ExtraTool_Info);
+                    TriggerPageAction("opcontrol.toolinfo," ^ TL::URLEncode(System.ExtraTool_Info));
+                }
+            }
         }
-    --></script>
+    -->
+    </script>
 </manialink>
